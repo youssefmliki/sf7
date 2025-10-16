@@ -9,6 +9,13 @@
             <div class="card-body">
                 <h5 class="card-title">{{ article.nom }}</h5>
                 <p class="card-text"><strong>Prix:</strong> {{ article.prix }} €</p>
+                <p class="card-text"><strong>Catégorie:</strong> 
+                    {% if article.category %}
+                        {{ article.category.titre }}
+                    {% else %}
+                        <span class="text-muted">Aucune catégorie</span>
+                    {% endif %}
+                </p>
                 <a href="{{ path('article_list') }}" class="btn btn-primary">Retour à la liste</a>
                 <a href="{{ path('edit_article', {'id': article.id}) }}" class="btn btn-warning">Modifier</a>
             </div>

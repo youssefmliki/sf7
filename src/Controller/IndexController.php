@@ -11,6 +11,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use App\Form\ArticleType;
+use App\Entity\Category;
+use App\Form\CategoryType;
 class IndexController extends AbstractController
 {
     #[Route('/', name: 'article_list')]
@@ -97,6 +99,27 @@ public function edit(Request $request, EntityManagerInterface $entityManager, in
             'article' => $article
         ]);
     }
+    #[Route('/category/new', name: 'new_category')]
+public function newCategory(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $category = new Category();
+    
+    $form = $this->createForm(CategoryType::class, $category);
+    
+    $form->handleRequest($request);
+    
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->persist($category);
+        $entityManager->flush();
+        
+        $this->addFlash('success', 'Catégorie créée avec succès!');
+        return $this->redirectToRoute('article_list');
+    }
+    
+    return $this->render('articles/newCategory.html.twig', [
+        'form' => $form->createView()
+    ]);
+}
 
  
 

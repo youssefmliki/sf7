@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Catégorie{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Ajouter une Catégorie</h1>
+        
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            
+            <div class="form-group mb-3">
+                {{ form_label(form.titre) }}
+                {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.titre) }}
+            </div>
+            
+            <div class="form-group mb-3">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+            
+            <button type="submit" class="btn btn-success mt-3">Créer</button>
+            
+        {{ form_end(form) }}
+        
+        <a href="{{ path('article_list') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+    </div>
+{% endblock %}

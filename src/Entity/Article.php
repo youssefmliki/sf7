@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -32,6 +33,10 @@ class Article
     #[Assert\NotBlank(message: "Le prix ne peut pas être vide")]
     private ?string $prix = null;
 
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'articles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -56,6 +61,17 @@ class Article
     public function setPrix(string $prix): static
     {
         $this->prix = $prix;
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
         return $this;
     }
 }

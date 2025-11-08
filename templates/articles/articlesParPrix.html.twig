@@ -1,35 +1,30 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Articles{% endblock %}
+{% block title %}Liste des Articles par Prix{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
-        <h1>Liste des Articles</h1>
+        <h1>Liste des Articles par Prix</h1>
         
-        {# Formulaire de recherche par nom #}
+        {# Formulaire de recherche par prix #}
         <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title">Recherche par Nom</h5>
-                {{ form_start(searchForm, {'attr': {'class': 'form-inline'}}) }}
+                <h5 class="card-title">Recherche par Prix</h5>
+                {{ form_start(form, {'attr': {'class': 'form-inline'}}) }}
                 <div class="form-row align-items-end w-100">
-                    <div class="col-md-8">
-                        {{ form_row(searchForm.nom, {'attr': {'class': 'form-control'}}) }}
+                    <div class="col-md-4">
+                        {{ form_row(form.minPrice, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.maxPrice, {'attr': {'class': 'form-control'}}) }}
                     </div>
                     <div class="col-md-4">
                         <button type="submit" class="btn btn-success w-100">Rechercher</button>
                     </div>
                 </div>
-                {{ form_end(searchForm) }}
+                {{ form_end(form) }}
             </div>
         </div>
-
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success">
-                {{ message }}
-            </div>
-        {% endfor %}
-
-        <a href="{{ path('new_article') }}" class="btn btn-primary mb-3">Ajouter un article</a>
 
         {% if articles %}
             <table class="table table-striped">

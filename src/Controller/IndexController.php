@@ -13,17 +13,45 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use App\Form\ArticleType;
 use App\Entity\Category;
 use App\Form\CategoryType;
+use App\Entity\PropertySearch;
+use App\Form\PropertySearchType;
+use App\Entity\CategorySearch;
+use App\Form\CategorySearchType;
+use App\Entity\PriceSearch;
+use App\Form\PriceSearchType;
 class IndexController extends AbstractController
 {
     #[Route('/', name: 'article_list')]
-    public function home(EntityManagerInterface $entityManager): Response
-    {
+    #[Route('/', name: 'article_list')]
+public function home(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $propertySearch = new PropertySearch();
+    $searchForm = $this->createForm(PropertySearchType::class, $propertySearch);
+    $searchForm->handleRequest($request);
+    
+    // Initialement le tableau des articles est vide
+    $articles = [];
+    
+    if ($searchForm->isSubmitted() && $searchForm->isValid()) {
+        // On récupère le nom d'article tapé dans le formulaire
+        $nom = $propertySearch->getNom();
+        if ($nom != "") {
+            // Si on a fourni un nom d'article, on affiche tous les articles ayant ce nom
+            $articles = $entityManager->getRepository(Article::class)->findBy(['nom' => $nom]);
+        } else {
+            // Si aucun nom n'est fourni, on affiche tous les articles
+            $articles = $entityManager->getRepository(Article::class)->findAll();
+        }
+    } else {
+        // Par défaut, afficher tous les articles
         $articles = $entityManager->getRepository(Article::class)->findAll();
-        
-        return $this->render('articles/index.html.twig', [
-            'articles' => $articles
-        ]);
     }
+    
+    return $this->render('articles/index.html.twig', [
+        'articles' => $articles,
+        'searchForm' => $searchForm->createView()
+    ]);
+}
 
     #[Route('/article/save', name: 'save_article')]
     public function save(EntityManagerInterface $entityManager): Response
@@ -138,4 +166,60 @@ public function newCategory(Request $request, EntityManagerInterface $entityMana
         $this->addFlash('success', 'Article supprimé avec succès!');
         return $this->redirectToRoute('article_list');
     }
+
+
+    #[Route('/art_cat/', name: 'article_par_cat')]
+public function articlesParCategorie(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $categorySearch = new CategorySearch();
+    $form = $this->createForm(CategorySearchType::class, $categorySearch);
+    $form->handleRequest($request);
+
+    $articles = [];
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $category = $categorySearch->getCategory();
+
+        if ($category != null) {
+            $articles = $category->getArticles();
+        } else {
+            $articles = $entityManager->getRepository(Article::class)->findAll();
+        }
+    } else {
+        $articles = $entityManager->getRepository(Article::class)->findAll();
+    }
+
+    return $this->render('articles/articlesParCategorie.html.twig', [
+        'form' => $form->createView(),
+        'articles' => $articles
+    ]);
+}
+
+#[Route('/art_prix/', name: 'article_par_prix')]
+public function articlesParPrix(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $priceSearch = new PriceSearch();
+    $form = $this->createForm(PriceSearchType::class, $priceSearch);
+    $form->handleRequest($request);
+
+    $articles = [];
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $minPrice = $priceSearch->getMinPrice();
+        $maxPrice = $priceSearch->getMaxPrice();
+
+        if ($minPrice !== null && $maxPrice !== null) {
+            $articles = $entityManager->getRepository(Article::class)->findByPriceRange($minPrice, $maxPrice);
+        } else {
+            $articles = $entityManager->getRepository(Article::class)->findAll();
+        }
+    } else {
+        $articles = $entityManager->getRepository(Article::class)->findAll();
+    }
+
+    return $this->render('articles/articlesParPrix.html.twig', [
+        'form' => $form->createView(),
+        'articles' => $articles
+    ]);
+}
 }
